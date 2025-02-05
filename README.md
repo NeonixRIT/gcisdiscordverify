@@ -5,6 +5,11 @@ Add the application to the discord server and move its role to the very top of t
 
 Instructors can then create their own links to send to their section which will automatically add them to the discord server with the proper roles and their real name as a nick name when they visit that link. Invites can also be edited and deleted from the provided `Manage Invites` pages.
 
+# My Instance
+I am currently hosting this application at https://people.rit.edu/kjc8084/gcisdiscordverify
+
+Because of my position as a Course Assistant for GCIS-123, Student Employees have access to the create and manage invite pages, otherwise I would not be able to access and test my own code.
+
 # Authentication
 Authentication is handled by .htaccess and rit shibboleth via apache.
 
@@ -55,7 +60,7 @@ NOTE: I will be skipping `.htaccess` files. They all serve the same purpose of r
 - `client_id`: ID of your Discord Application. Found through the Developer Portal under `OAuth2` and `Client ID`
 - `bot_invite_url`: URL to invite your application to servers. Also found in the Developer Portal under `OAuth2` and `OAuth2 URL Generator`. Select the `bot` scope, then the `Administrator` permission, `Guild Install` integration type, and then copy the generated URL
 - `client_oauth_url`: URL to retrieve access token for user that `join` will redirect to. Generated in the Developer Portal under `OAuth2` and `OAuth2 URL Generator`. Select `identify` and `guilds.join`, the `redirect_uri` defined above and input under `Redirects`, and then copy the generated URL.
-- `user_agent`: User agent to be sent with every request to discord API. This is generally "<project name> (<where project is hosts>, <project version string>)"
+- `user_agent`: User agent to be sent with every request to discord API. This is generally "project_name (where_project_is_hosted>, project_version_string)"
 
 # Usage
 ## Step 0: Setup
@@ -90,12 +95,13 @@ Authentication to each page is also solely dependant on RIT shibboleth w/ the `.
 This application uses Discord OAuth2 workflow to authenticate as the user to join a server and retrieve their user id. This data is never saved. The authentication token is immediately revoked after success or failure of accepting the invite link and is also immediately discarded.
 
 ### RIT
-`peoples.rit.edu` allows unique access to RIT's authentication and user data. This application uses the users RIT `givenName` (first name) and surname, or `sn` (last name) to set the user's nickname to their full name when they join the Discord server. After this is done, this information is immediately discarded and never saved.
+`peoples.rit.edu` allows unique access to RIT's authentication and user data. This application uses the users RIT `givenName` (first name) and surname, or `sn` (last name) to set the user's nickname to their full name when they join the Discord server. After this is done, this information is immediately discarded and never saved. This data is made available to the application and accessed through the PHP `$_SERVER` variable, as RIT adds this information to it.
 
 ## AI Usage
-A majority of this project was developed using the ChatGPT o3-mini-high model. It is responsible almost all of the HTML/CSS/JS. It also wrote a large portion of the PHP code (mainly in the use of curl to make requests), as well as some of the Python code for interacting with the Discord API. The entire chat history used in the making of this project is available in the `Resources` section. If any secrets happen to have leaked in the chat log, they have long been changed.
+A majority of this project was developed using the ChatGPT o3-mini-high model. It is responsible almost all of the HTML/CSS/JS. It also wrote a large portion of the PHP code (mainly in the use of curl to make requests), as well as some of the Python code for interacting with the Discord API. The entire chat history used in the making of this project is available in the `Resources` section. If any secrets happen to have leaked in the chat log, they have long been changed. Copilot was also used but largely for minor autocompletions.
 
 ## TODO
+- Sanitize description input and output
 - Unify naming conventions in all files to use `snake_case`
 - Remove most AI line comments and properly comments secions of code and files
 - Make `manageinvites/index.php` table show `no invites available` message when deleting the last invite
