@@ -95,6 +95,13 @@ This application uses Discord OAuth2 workflow to authenticate as the user to joi
 ## AI Usage
 A majority of this project was developed using the ChatGPT o3-mini-high model. It is responsible almost all of the HTML/CSS/JS. It also wrote a large portion of the PHP code (mainly in the use of curl to make requests), as well as some of the Python code for interacting with the Discord API. The entire chat history used in the making of this project is available in the `Resources` section. If any secrets happen to have leaked in the chat log, they have long been changed.
 
+## TODO
+- Unify naming conventions in all files to use `snake_case`
+- Remove most AI line comments and properly comments secions of code and files
+- Make `manageinvites/index.php` table show `no invites available` message when deleting the last invite
+- Modularize the HTML/CSS/JS?
+- Togglable dark/light modes?
+
 # Resources
 - [Discord Developer Portal](https://discord.com/developers/applications)
 - [Discord API Documentation](https://discord.com/developers/docs/intro)
