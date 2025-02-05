@@ -1,0 +1,5 @@
+ShibRedirectToSSL 443
+AuthType shibboleth
+ShibRequireSession on
+require shib-attr ritEduAffiliation Employee
+require shib-attr ritEduAffiliation StudentWorker
