@@ -106,3 +106,4 @@ A majority of this project was developed using the ChatGPT o3-mini-high model. I
 - [Discord Developer Portal](https://discord.com/developers/applications)
 - [Discord API Documentation](https://discord.com/developers/docs/intro)
 - [Chat GPT Chat History](https://chatgpt.com/share/67a3c9b8-538c-8010-8549-ca501cdb1723)
+- [RIT Website Documentation](https://www.rit.edu/webresources/official-rit-website-documentation)
