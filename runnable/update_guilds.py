@@ -66,6 +66,7 @@ for guild in guilds_result:
     guild_name = guild['name']
     guild_roles_endpoint = f'/guilds/{guild_id}/roles'
     guild_roles = send_discord_api_request(bot_token, is_bot, guild_roles_endpoint)['response']
+    bot_role_pos = guild_roles[-1]['position'] # Bot's role is always the last one for /api/v10
     data.append(
         {
             'name': guild_name,
@@ -75,8 +76,8 @@ for guild in guilds_result:
                     'name': role['name'],
                     'id': role['id']
                 } 
-            for role in guild_roles
-            if role['name'] != "@everyone" and role['name'] != "RIT GCCIS User Verify"
+            for role in sorted(guild_roles[:-1], key=lambda x: x['position'], reverse=True)
+            if role['name'] != "@everyone" and role['position'] <= bot_role_pos
             ]
         }
     )

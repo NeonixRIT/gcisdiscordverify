@@ -226,7 +226,9 @@ $has_invites = !empty($invites);
               <div id="edit_roles_container">
                 <!-- Roles checkboxes will be populated here -->
               </div>
-              <small class="form-text text-muted">Role selection is optional. If no roles are selected, no roles will be assigned.</small>
+              <small class="form-text text-muted">
+                Only roles that the application has permissions to assign are displayed.
+              </small>
             </div>
           </div>
           <div class="modal-footer">

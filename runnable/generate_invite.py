@@ -41,7 +41,7 @@ for i in range(0, len(roles), 2):
     parsed_roles.append((role_id, role_name))
 
 
-invite_length = 16
+invite_length = 8
 invite_characters = 'abcdefghijklmnopqrstuvwxyz'
 invite_characters += invite_characters.upper()
 invite_characters += '01234567890'

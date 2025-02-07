@@ -145,7 +145,9 @@ $guilds_data = json_decode(file_get_contents("{$config['project_root']}/data/gui
               <div id="rolesContainer">
                 <p>Select a server above to view roles.</p>
               </div>
-              <small class="form-text text-muted">Role selection is optional. If no roles are selected, no roles will be assigned.</small>
+              <small class="form-text text-muted">
+                Only roles that the application has permissions to assign are displayed.
+              </small>
             </div>
             <button type="submit" class="btn btn-primary btn-block">Generate Invite Link</button>
           </div>
