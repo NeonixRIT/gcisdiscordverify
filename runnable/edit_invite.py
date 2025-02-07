@@ -15,10 +15,18 @@ invite_id = argv[1]
 server_id: str = argv[2]
 server_name_b64: str = argv[3]
 description_b64: str = argv[4]
-roles = argv[5:]
+nick_prefix_b64: str = argv[5]
+nick_suffix_b64: str = argv[6]
+roles = argv[7:]
 
 server_name = b64decode(server_name_b64).decode('utf-8')
 description = b64decode(description_b64).decode('utf-8')
+nick_prefix = b64decode(nick_prefix_b64).decode('utf-8')
+if nick_prefix.strip() == '':
+    nick_prefix = ''
+nick_suffix = b64decode(nick_suffix_b64).decode('utf-8')
+if nick_suffix.strip() == '':
+    nick_suffix = ''
 
 parsed_roles = []
 for i in range(0, len(roles), 2):
@@ -35,6 +43,8 @@ invites[invite_id] = {
     'server_name': server_name,
     'server_id': server_id,
     'description': description,
+    'nick_prefix': nick_prefix,
+    'nick_suffix': nick_suffix,
     'roles': 
     [
         {'id': role_id, 'name': role_name}

@@ -174,7 +174,10 @@ foreach ($roles as $role_data) {
     $role_ids[] = $role_id;
 }
 $user_id = $user_data['id'];
-$nick_name = "{$first_name} {$last_name}";
+$nick_prefix = $invite_data->{'nick_prefix'} ?? '';
+$nick_suffix = $invite_data->{'nick_suffix'} ?? '';
+
+$nick_name = "{$nick_prefix}{$first_name} {$last_name}{$nick_suffix}";
 $res = addGuildMember($access_token, $server_id, $user_id, $nick_name, $role_ids);
 $revoke_response = revokeAccessToken($access_token);
 

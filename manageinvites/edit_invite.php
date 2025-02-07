@@ -30,6 +30,12 @@ $server_name_b64 = base64_encode($server_name);
 $description = $_POST['description'] ?? '';
 $description_b64 = base64_encode($description);
 
+// Retrieve the nickname prefix and suffix.
+$nick_prefix = !empty($_POST['nick_prefix']) ? $_POST['nick_prefix'] : ' ';;
+$nick_prefix_b64 = base64_encode($nick_prefix);
+$nick_suffix = !empty($_POST['nick_suffix']) ? $_POST['nick_suffix'] : ' ';;
+$nick_suffix_b64 = base64_encode($nick_suffix);
+
 // Retrieve and decode the roles data.
 // The roles field is sent as a JSON string representing an array of JSON strings.
 $roles_json = $_POST['roles'] ?? '';
@@ -49,7 +55,7 @@ if (is_array($selected_roles)) {
     }
 }
 
-$cmd = "{$config['python_path']} {$config['project_root']}/runnable/edit_invite.py {$invite_id} {$server_id} {$server_name_b64} {$description_b64}";
+$cmd = "{$config['python_path']} {$config['project_root']}/runnable/edit_invite.py {$invite_id} {$server_id} {$server_name_b64} {$description_b64} {$nick_prefix_b64} {$nick_suffix_b64}";
 foreach ($decoded_roles as $role_data) {
     $role_name_b64 = base64_encode($role_data['name']);
     $cmd = "{$cmd} {$role_data['id']} {$role_name_b64}";

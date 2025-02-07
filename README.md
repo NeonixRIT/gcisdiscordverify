@@ -46,6 +46,9 @@ NOTE: I will be skipping `.htaccess` files. They all serve the same purpose of r
         - `update_guilds.py`: Authenticates using the `bot` access token to get the servers the application has access to and their roles. Saves the results in `guilds.json`
     - `index.php`: Main page containing links to add application to a server, create invite links, or modify them
 
+# Data Type Definitions
+WIP
+
 # Config
 ## Secrets
 - `client_secret`: Available and generated through the Discord developer portal. Go to the application and then `OAuth2` and `Reset Secret`
@@ -56,18 +59,18 @@ NOTE: I will be skipping `.htaccess` files. They all serve the same purpose of r
 - `project_root`: Absolute path to the root of the project folder with `data`, `invite`, etc. directories.
 - `invite_endpoint`: HTTP URL to page hosting the `invite` directory  
 - `redirect_uri`: HTTP URL to the page hosting the `join` directory. This should also match exactly to what is entered in the Discord Developer Portal under `OAuth2` and `Redirects`. It should also be the redirect selected when generating the `client_oauth_url` through the Developer Portal
-- `discord_api_url`: Base URL for the discord API (/api/v<version>)
+- `discord_api_url`: Base URL for the discord API (currently /api/v10)
 - `client_id`: ID of your Discord Application. Found through the Developer Portal under `OAuth2` and `Client ID`
 - `bot_invite_url`: URL to invite your application to servers. Also found in the Developer Portal under `OAuth2` and `OAuth2 URL Generator`. Select the `bot` scope, then the `Administrator` permission, `Guild Install` integration type, and then copy the generated URL
 - `client_oauth_url`: URL to retrieve access token for user that `join` will redirect to. Generated in the Developer Portal under `OAuth2` and `OAuth2 URL Generator`. Select `identify` and `guilds.join`, the `redirect_uri` defined above and input under `Redirects`, and then copy the generated URL.
-- `user_agent`: User agent to be sent with every request to discord API. This is generally "project_name (where_project_is_hosted>, project_version_string)"
+- `user_agent`: User agent to be sent with every request to discord API. This is generally "project_name (where_project_is_hosted, project_version_string)"
 
 # Usage
 ## Step 0: Setup
 - Using the Discord Developer Portal, create an application
 - Clone project code and enter appropriate config values
 - Adjust .htaccess files as desired
-- Host files at `people.rit.edu/<your_rit_id>` or another rit shibboleth enabled apache server
+- Host files at `people.rit.edu/your_rit_id` or another rit shibboleth enabled apache server
 - Create discord server
 
 ## Step 1: Add Application to Discord Server
@@ -101,12 +104,14 @@ This application uses Discord OAuth2 workflow to authenticate as the user to joi
 A majority of this project was developed using the ChatGPT o3-mini-high model. It is responsible almost all of the HTML/CSS/JS. It also wrote a large portion of the PHP code (mainly in the use of curl to make requests), as well as some of the Python code for interacting with the Discord API. The entire chat history used in the making of this project is available in the `Resources` section. If any secrets happen to have leaked in the chat log, they have long been changed. Copilot was also used but largely for minor autocompletions.
 
 ## TODO
-- Sanitize description input and output
+- Fine tune `.htaccess`
+- Ensure bot permissions are minimal. Administrator it likely not needed but what does it need?
 - Unify naming conventions in all files to use `snake_case`
-- Remove most AI line comments and properly comments secions of code and files
-- Make `manageinvites/index.php` table show `no invites available` message when deleting the last invite
+- Remove most AI line comments and properly comment secions of code and files
 - Modularize the HTML/CSS/JS?
 - Togglable dark/light modes?
+- Modify user if already a member of server?
+- RIT username/affilation check per invite?
 
 # Resources
 - [Discord Developer Portal](https://discord.com/developers/applications)

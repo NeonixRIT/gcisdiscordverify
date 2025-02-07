@@ -15,6 +15,9 @@ $guilds_data = [];
 if (file_exists($guilds_file)) {
     $guilds_data = json_decode(file_get_contents($guilds_file), true);
 }
+
+// Determine if there are invites
+$has_invites = !empty($invites);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,7 +40,7 @@ if (file_exists($guilds_file)) {
       background-color: #1e1e1e;
       padding: 30px;
       border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
     table {
       color: #e0e0e0;
@@ -52,6 +55,14 @@ if (file_exists($guilds_file)) {
     .select_invite {
       transform: scale(1.2);
       margin: 0;
+    }
+    .nick_prefix::before,
+    .nick_suffix::before {
+      content: '"';
+    }
+    .nick_prefix::after,
+    .nick_suffix::after {
+      content: '"';
     }
   </style>
   <script>
@@ -88,15 +99,17 @@ if (file_exists($guilds_file)) {
   <!-- Main Container -->
   <div class="container">
     <h2 class="mb-4">Manage Invites</h2>
-    <!-- Bulk Delete Button -->
-    <button id="bulk_delete_btn" class="btn btn-danger mb-3">Delete Selected Invites</button>
+    <?php if ($has_invites): ?>
+      <!-- Bulk Delete Button -->
+      <button id="bulk_delete_btn" class="btn btn-danger mb-3">Delete Selected Invites</button>
+    <?php endif; ?>
     
     <?php if (!file_exists($invites_file)): ?>
       <div class="alert alert-danger">Invites file not found.</div>
     <?php elseif ($invites === null): ?>
       <div class="alert alert-danger">Error decoding invites JSON.</div>
-    <?php elseif (empty($invites)): ?>
-      <div class="alert alert-info">No invites found.</div>
+    <?php elseif (!$has_invites): ?>
+      <div class="alert alert-info" id="no_invites_msg">No invites found.</div>
     <?php else: ?>
       <table class="table table-dark table-striped">
         <thead>
@@ -105,17 +118,23 @@ if (file_exists($guilds_file)) {
             <th>Invite ID</th>
             <th>Server Name</th>
             <th>Description</th>
+            <th>Nickname Prefix</th>
+            <th>Nickname Suffix</th>
             <th>Roles</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody id="invites_table_body">
-          <?php foreach ($invites as $invite_id => $data): ?>
+          <?php foreach ($invites as $invite_id => $data): 
+            $invite_link = $config['invite_endpoint'].'?id='.$invite_id;
+          ?>
             <tr id="invite-<?php echo htmlspecialchars($invite_id); ?>">
               <td><input type="checkbox" class="select_invite" value="<?php echo htmlspecialchars($invite_id); ?>"></td>
               <td><?php echo htmlspecialchars($invite_id); ?></td>
               <td class="server_name"><?php echo htmlspecialchars($data['server_name'] ?? 'N/A'); ?></td>
               <td class="description"><?php echo htmlspecialchars($data['description'] ?? ''); ?></td>
+              <td class="nick_prefix"><?php echo htmlspecialchars($data['nick_prefix'] ?? ''); ?></td>
+              <td class="nick_suffix"><?php echo htmlspecialchars($data['nick_suffix'] ?? ''); ?></td>
               <td class="roles">
                 <?php 
                   if (isset($data['roles']) && is_array($data['roles'])) {
@@ -134,12 +153,18 @@ if (file_exists($guilds_file)) {
                   data-server_id="<?php echo htmlspecialchars($data['server_id'] ?? ''); ?>"
                   data-server_name="<?php echo htmlspecialchars($data['server_name'] ?? ''); ?>"
                   data-description="<?php echo htmlspecialchars($data['description'] ?? ''); ?>"
+                  data-nick_prefix="<?php echo htmlspecialchars($data['nick_prefix'] ?? ''); ?>"
+                  data-nick_suffix="<?php echo htmlspecialchars($data['nick_suffix'] ?? ''); ?>"
                   data-roles='<?php echo json_encode($data['roles'] ?? []); ?>'>
                   Edit
                 </button>
                 <button class="btn btn-sm btn-danger action_btn btn_delete"
                   data-invite_id="<?php echo htmlspecialchars($invite_id); ?>">
                   Delete
+                </button>
+                <button class="btn btn-sm btn-secondary action_btn btn_copy"
+                  data-invite_link="<?php echo htmlspecialchars($invite_link); ?>">
+                  Copy Link
                 </button>
               </td>
             </tr>
@@ -162,10 +187,10 @@ if (file_exists($guilds_file)) {
         <form id="edit_invite_form">
           <div class="modal-body">
             <input type="hidden" name="invite_id" id="edit_invite_id">
-            <!-- Server Selection as Drop Down -->
+            <!-- Server Selection as Drop Down (Required) -->
             <div class="form-group">
-              <label for="edit_server_select">Select Server</label>
-              <select class="form-control" id="edit_server_select" name="server">
+              <label for="edit_server_select">Select Server <span style="color:red;">*</span></label>
+              <select class="form-control" id="edit_server_select" name="server" required>
                 <option value="">-- Select a Server --</option>
                 <?php foreach ($guilds_data as $guild): ?>
                   <option value='<?php echo json_encode(["id" => $guild['id'], "name" => $guild['name']]); ?>'>
@@ -173,18 +198,35 @@ if (file_exists($guilds_file)) {
                   </option>
                 <?php endforeach; ?>
               </select>
+              <small class="form-text text-muted">This field is required.</small>
             </div>
-            <!-- Description Input -->
+            <!-- Description Input (Required) -->
             <div class="form-group">
-              <label for="edit_description">Description</label>
-              <input type="text" class="form-control" id="edit_description" name="description">
+              <label for="edit_description">Description <span style="color:red;">*</span></label>
+              <input type="text" class="form-control" id="edit_description" name="description" required pattern="^(?!\s*$).+" title="Cannot be only whitespace.">
+            </div>
+            <!-- Nick Prefix and Nick Suffix Fields (Optional) -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="edit_nick_prefix">Nickname Prefix (Optional)</label>
+                  <input type="text" class="form-control" id="edit_nick_prefix" name="nick_prefix" placeholder="Enter a nickname prefix" pattern="^(?!\s*$).+" title="Cannot be only whitespace.">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="edit_nick_suffix">Nickname Suffix (Optional)</label>
+                  <input type="text" class="form-control" id="edit_nick_suffix" name="nick_suffix" placeholder="Enter a nickname suffix" pattern="^(?!\s*$).+" title="Cannot be only whitespace.">
+                </div>
+              </div>
             </div>
             <!-- Roles Container (populated based on server selection) -->
             <div class="form-group">
-              <label>Select Roles to Assign</label>
+              <label>Select Roles to Assign (Optional)</label>
               <div id="edit_roles_container">
                 <!-- Roles checkboxes will be populated here -->
               </div>
+              <small class="form-text text-muted">Role selection is optional. If no roles are selected, no roles will be assigned.</small>
             </div>
           </div>
           <div class="modal-footer">
@@ -220,7 +262,6 @@ if (file_exists($guilds_file)) {
       
       if (selected_guild && selected_guild.roles && selected_guild.roles.length > 0) {
         selected_guild.roles.forEach(function(role) {
-          // Create a checkbox for each role
           var div = $('<div class="form-check"></div>');
           var input = $('<input class="form-check-input" type="checkbox" name="roles[]" />');
           // Set value as JSON string with id and name
@@ -275,6 +316,12 @@ if (file_exists($guilds_file)) {
             selected_invite_ids.forEach(function(invite_id) {
               $('#invite-' + $.escapeSelector(invite_id)).remove();
             });
+            // If there are no invite checkboxes left, remove the entire table
+            if ($('.select_invite').length === 0) {
+              $('#invites_table_body').closest('table').remove();
+              $('.container').append('<div class="alert alert-info" id="no_invites_msg">No invites found.</div>');
+              $('#bulk_delete_btn').hide();
+            }
           }).fail(function() {
             alert("Error deleting selected invites.");
           });
@@ -287,37 +334,61 @@ if (file_exists($guilds_file)) {
         if (confirm("Are you sure you want to delete this invite?")) {
           $.post('delete_invites.php', { invite_ids: [invite_id] }, function(response) {
             $('#invite-' + $.escapeSelector(invite_id)).remove();
+            if ($('.select_invite').length === 0) {
+              $('#invites_table_body').closest('table').remove();
+              $('.container').append('<div class="alert alert-info" id="no_invites_msg">No invites found.</div>');
+              $('#bulk_delete_btn').hide();
+            }
           }).fail(function() {
             alert("Error deleting invite.");
           });
         }
       });
       
-      // Edit functionality: when an edit button is clicked, populate the modal and show it
+      // Copy Invite Link functionality
+      $('.btn_copy').click(function() {
+        var $this = $(this);
+        var invite_link = $this.data('invite_link');
+        if (!invite_link) {
+          alert("No invite link found to copy!");
+          return;
+        }
+        navigator.clipboard.writeText(invite_link).then(function() {
+          $this.text('Copied!');
+          setTimeout(function() {
+            $this.text('Copy Link');
+          }, 5000);
+        }).catch(function(err) {
+          alert("Failed to copy invite link.");
+        });
+      });
+      
+      // Edit functionality: when an edit button is clicked, update guilds before opening modal
       $('.btn_edit').click(function() {
-        // First, trigger the guild update
         $.get('update_guilds.php', function(update_response) {
-            // Then, proceed with opening the modal.
-            var invite_id = $(this).data('invite_id');
-            var server_id = $(this).data('server_id');
-            var server_name = $(this).data('server_name');
-            var description = $(this).data('description');
-            var roles = $(this).data('roles');
-            if (typeof roles === "string") {
+          var invite_id = $(this).data('invite_id');
+          var server_id = $(this).data('server_id');
+          var server_name = $(this).data('server_name');
+          var description = $(this).data('description');
+          var nick_prefix = $(this).data('nick_prefix');
+          var nick_suffix = $(this).data('nick_suffix');
+          var roles = $(this).data('roles'); // roles may be an array or a JSON string
+          if (typeof roles === "string") {
             try {
-                roles = JSON.parse(roles);
+              roles = JSON.parse(roles);
             } catch (e) {
-                roles = [];
+              roles = [];
             }
-            }
-            // Populate the modal as before...
-            var current_server = { id: server_id, name: server_name };
-            $('#edit_server_select').val(JSON.stringify(current_server));
-            $('#edit_description').val(description);
-            populate_edit_roles(current_server, roles);
-            $('#edit_invite_id').val(invite_id);
-            $('#edit_invite_modal').modal('show');
-        }.bind(this)); // bind(this) so that "this" remains the edit button
+          }
+          var current_server = { id: server_id, name: server_name };
+          $('#edit_server_select').val(JSON.stringify(current_server));
+          $('#edit_description').val(description);
+          $('#edit_nick_prefix').val(nick_prefix);
+          $('#edit_nick_suffix').val(nick_suffix);
+          populate_edit_roles(current_server, roles);
+          $('#edit_invite_id').val(invite_id);
+          $('#edit_invite_modal').modal('show');
+        }.bind(this));
       });
       
       // When the server drop down in the edit modal changes, update the roles container
@@ -329,28 +400,25 @@ if (file_exists($guilds_file)) {
         } catch (e) {
           selected_server = null;
         }
-        // When user changes server, we clear any preselected roles (or you might decide to keep them)
         populate_edit_roles(selected_server, []);
       });
       
       // Handle submission of the edit invite form
       $('#edit_invite_form').submit(function(event) {
         event.preventDefault();
-        // Collect selected roles from the edit roles container as an array of JSON strings
         var selected_roles = [];
         $('#edit_roles_container input[name="roles[]"]:checked').each(function() {
           selected_roles.push($(this).val());
         });
-        // Add the selected roles to the serialized form data.
         var form_data = $(this).serializeArray();
         form_data.push({ name: "roles", value: JSON.stringify(selected_roles) });
         
         $.post('edit_invite.php', form_data, function(response) {
           var invite_id = $('#edit_invite_id').val();
-          // For simplicity, update the row with the new server name, description, and list of role names
           var new_server_data = JSON.parse($('#edit_server_select').val());
           var new_description = $('#edit_description').val();
-          // For roles, parse selected_roles and extract role names
+          var new_nick_prefix = $('#edit_nick_prefix').val();
+          var new_nick_suffix = $('#edit_nick_suffix').val();
           var role_names = [];
           selected_roles.forEach(function(role_json) {
             var role_obj = JSON.parse(role_json);
@@ -358,11 +426,23 @@ if (file_exists($guilds_file)) {
           });
           
           var row = $('#invite-' + $.escapeSelector(invite_id));
+          // Update the visible cells
           row.find('.server_name').text(new_server_data.name);
           row.find('.description').text(new_description);
+          row.find('.nick_prefix').text(new_nick_prefix);
+          row.find('.nick_suffix').text(new_nick_suffix);
           row.find('.roles').text(role_names.join(", "));
           
-          // Hide the modal
+          // Update the data attributes on the Edit button so subsequent edits load the new values
+          var editBtn = row.find('.btn_edit');
+          editBtn.data('server_id', new_server_data.id);
+          editBtn.data('server_name', new_server_data.name);
+          editBtn.data('description', new_description);
+          editBtn.data('nick_prefix', new_nick_prefix);
+          editBtn.data('nick_suffix', new_nick_suffix);
+          // Save the roles as a JSON string
+          editBtn.data('roles', JSON.stringify(selected_roles));
+          
           $('#edit_invite_modal').modal('hide');
         }).fail(function() {
           alert("Error modifying invite.");

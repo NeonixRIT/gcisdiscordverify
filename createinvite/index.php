@@ -50,18 +50,32 @@ $guilds_data = json_decode(file_get_contents("{$config['project_root']}/data/gui
       background-color: #0069d9;
       border-color: #0062cc;
     }
+    /* Hide additional fields until a server is selected */
+    #additional_fields {
+      display: none;
+    }
   </style>
   <script>
     function open_invite() {
       var url = "<?php echo $config['bot_invite_url']; ?>"; 
       var newWindow = window.open(url, '_blank', 'width=500,height=700,top=100,left=100');
-
       if (newWindow) {
           newWindow.focus();
       } else {
           alert("Popup blocked! Please allow popups for this site.");
       }
       window.location.href = "index.php";
+    }
+    
+    // Function to show/hide additional fields based on server selection
+    function updateAdditionalFieldsVisibility() {
+      var serverSelect = document.getElementById('serverSelect');
+      var additionalFields = document.getElementById('additional_fields');
+      if (serverSelect.value) {
+        additionalFields.style.display = 'block';
+      } else {
+        additionalFields.style.display = 'none';
+      }
     }
   </script>
 </head>
@@ -88,10 +102,10 @@ $guilds_data = json_decode(file_get_contents("{$config['project_root']}/data/gui
       <div class="col-md-8 form-container">
         <h2 class="mb-4 text-center">Generate Unique Invite Link</h2>
         <form id="inviteForm" action="handle_invite_creation.php" method="POST">
-          <!-- Server Selection -->
+          <!-- Server Selection (Required) -->
           <div class="form-group">
-            <label for="serverSelect">Select Server</label>
-            <select class="form-control" id="serverSelect" name="server">
+            <label for="serverSelect">Select Server <span style="color:red;">*</span></label>
+            <select class="form-control" id="serverSelect" name="server" required onchange="updateAdditionalFieldsVisibility()">
               <option value="">-- Select a Server --</option>
               <?php foreach ($guilds_data as $guild): ?>
                 <option value='<?php echo json_encode(["id" => $guild->id, "name" => $guild->name]); ?>'>
@@ -99,20 +113,42 @@ $guilds_data = json_decode(file_get_contents("{$config['project_root']}/data/gui
                 </option>
               <?php endforeach; ?>
             </select>
+            <small class="form-text text-muted">This field is required.</small>
           </div>
-          <!-- Description Input -->
-          <div class="form-group">
-            <label for="inviteDescription">Description</label>
-            <input type="text" class="form-control" id="inviteDescription" name="description" placeholder="Enter a description for the invite">
-          </div>
-          <!-- Roles Selection -->
-          <div class="form-group">
-            <label>Select Roles to Assign</label>
-            <div id="rolesContainer">
-              <p>Select a server above to view roles.</p>
+          
+          <!-- Additional fields, hidden until a server is selected -->
+          <div id="additional_fields">
+            <!-- Description Input (Required) -->
+            <div class="form-group">
+              <label for="inviteDescription">Description <span style="color:red;">*</span></label>
+              <input type="text" class="form-control" id="inviteDescription" name="description" placeholder="Enter a description for the invite" required pattern="^(?!\s*$).+" title="Cannot be only whitespace.">
+              <small class="form-text text-muted">This field is required.</small>
             </div>
+            <!-- Nick Prefix and Nick Suffix Fields (Optional) -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="nickPrefix">Nickname Prefix (Optional)</label>
+                  <input type="text" class="form-control" id="nickPrefix" name="nick_prefix" placeholder="Enter a nickname prefix" pattern="^(?!\s*$).+" title="Cannot be only whitespace.">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="nickSuffix">Nickname Suffix (Optional)</label>
+                  <input type="text" class="form-control" id="nickSuffix" name="nick_suffix" placeholder="Enter a nickname suffix" pattern="^(?!\s*$).+" title="Cannot be only whitespace.">
+                </div>
+              </div>
+            </div>
+            <!-- Roles Selection (Optional) -->
+            <div class="form-group">
+              <label>Select Roles to Assign (Optional)</label>
+              <div id="rolesContainer">
+                <p>Select a server above to view roles.</p>
+              </div>
+              <small class="form-text text-muted">Role selection is optional. If no roles are selected, no roles will be assigned.</small>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Generate Invite Link</button>
           </div>
-          <button type="submit" class="btn btn-primary btn-block">Generate Invite Link</button>
         </form>
         <div id="inviteResult" class="mt-4"></div>
       </div>
