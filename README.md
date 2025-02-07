@@ -68,10 +68,16 @@ NOTE: I will be skipping `.htaccess` files. They all serve the same purpose of r
 }
 ```
 
+## Invite ID
+An invite id is a string of at least length 3 with the following restrictions:
+- The first and last character can be is `a-z`, `A-Z`, or `0-9`
+- The second character can be `-`, `_`, or `.`
+- All other characters can be `a-z`, `A-Z`, `0-9`, `-`, `_`, or `.`
+
 ## Invite
 ```json
 {
-    "<invite_id>": {
+    invite id: {
         "server_name": string,
         "server_id": string,
         "description": string,
