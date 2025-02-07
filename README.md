@@ -47,7 +47,40 @@ NOTE: I will be skipping `.htaccess` files. They all serve the same purpose of r
     - `index.php`: Main page containing links to add application to a server, create invite links, or modify them
 
 # Data Type Definitions
-WIP
+## Role
+```json
+{
+    {
+        "name": string,
+        "id": string
+    }
+}
+```
+
+## Server
+```json
+{
+    {
+        "name": string,
+        "id": string,
+        "roles": [role]
+    }
+}
+```
+
+## Invite
+```json
+{
+    "<invite_id>": {
+        "server_name": string,
+        "server_id": string,
+        "description": string,
+        "nick_prefix": string,
+        "nick_suffix": string,
+        "roles": [role]
+    }
+}
+```
 
 # Config
 ## Secrets
@@ -65,9 +98,28 @@ WIP
 - `client_oauth_url`: URL to retrieve access token for user that `join` will redirect to. Generated in the Developer Portal under `OAuth2` and `OAuth2 URL Generator`. Select `identify` and `guilds.join`, the `redirect_uri` defined above and input under `Redirects`, and then copy the generated URL.
 - `user_agent`: User agent to be sent with every request to discord API. This is generally "project_name (where_project_is_hosted, project_version_string)"
 
+## Example Config
+Below is the `config.php` used for my instance, to get a sense of what the values should be.
+```php
+<?php
+return [
+    "python_path"      => "/usr/bin/python",
+    "project_root"     => "/home/kjc8084/www/gcisdiscordverify",
+    "invite_endpoint"  => "https://people.rit.edu/kjc8084/gcisdiscordverify/invite",
+    "redirect_uri"     => "https://people.rit.edu/kjc8084/gcisdiscordverify/join",
+    "discord_api_url"  => "https://discord.com/api/v10",
+    "client_id"        => "1336452116679753738",
+    "bot_invite_url"   => "https://discord.com/oauth2/authorize?client_id=1336452116679753738&permissions=8&integration_type=0&scope=bot",
+    "client_oauth_url" => "https://discord.com/oauth2/authorize?client_id=1336452116679753738&response_type=code&redirect_uri=https%3A%2F%2Fpeople.rit.edu%2Fkjc8084%2Fgcisdiscordverify%2Fjoin&scope=guilds.join+identify",
+    "user_agent"       => "RIT Invite Manager (people.rit.edu/kjc8084/gcisdiscordverify, 1.0)",
+];
+?>
+```
+
 # Usage
 ## Step 0: Setup
 - Using the Discord Developer Portal, create an application
+  - Ensure "Public Bot" is toggled under the `Bot` section in the Discord Developer Portal if you want others to be able to add the application to their server
 - Clone project code and enter appropriate config values
 - Adjust .htaccess files as desired
 - Host files at `people.rit.edu/your_rit_id` or another rit shibboleth enabled apache server
@@ -75,7 +127,7 @@ WIP
 
 ## Step 1: Add Application to Discord Server
 - Go to the `index.php` page in the project root directory and follow the link to add the application to your server created in step 0
-- Go into the server settings and move the applications role to the top of the roles list
+- Go into the server settings and move the application's role above the roles you wish it to be able to apply to users
 
 ## Step 2: Create Invite Links
 - Go to the `createinvite/index.php` page, select your server and the roles you wish the invite link to apply to users. Add a description to the invite link to remember what is for
@@ -111,7 +163,6 @@ A majority of this project was developed using the ChatGPT o3-mini-high model. I
 - Modularize the HTML/CSS/JS?
 - Togglable dark/light modes?
 - Modify user if already a member of server?
-- RIT username/affilation check per invite?
 
 # Resources
 - [Discord Developer Portal](https://discord.com/developers/applications)
