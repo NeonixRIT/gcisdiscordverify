@@ -20,7 +20,7 @@ NOTE: I will be skipping `.htaccess` files. They all serve the same purpose of r
 
 - `project root`: This is the root directory containing all project files. This absolute path should go in the config file
     - `createinvite`: Webpage restricted to Employees and Student Employees by default for creating invite links
-        - `handle_invite_creation.php`: Recieves server data (name, id), description, and roles (Array of [name, id]). Parses and sends that Python for formatting saving the info to a file
+        - `handle_invite_creation.php`: intermediary page for parsing parameters (each value of the invite minus the id) and sending them to `manage_invites.py`
         - `index.php`: Main page with form to create an invite link. Automatically populates options using Discord's API with the servers it has access to and their roles
     - `data`: Folder contains configs, secrets, and json for managing invite links
         - `default_config.ph`: a config with mostly empty values. Rename to `config.php` and fill in the values. See the config section for more details
@@ -35,13 +35,12 @@ NOTE: I will be skipping `.htaccess` files. They all serve the same purpose of r
         - `success.ph`: page that get displayed if the user successfully joined the server or was alread a member of the server
     - `manageinvites`: page for viewing, editting, and deleting active invites
         - `delete_invites.php`: intermediary page for parsing parameters (array of invite ids) and sending them to `delete_invites.py`
-        - `edit_invite.php`: intermediary page for parsing parameters (each value of the invite) and sending them to `edit_invite.py`
+        - `edit_invite.php`: intermediary page for parsing parameters (each value of the invite) and sending them to `manage_invites.py`
         - `index.php`: main page to view/edit/or delete invites
         - `update_guilds.php`: helper page to update `guilds.json` whenever an edit window is opened
     - `runnable`: contains python code called by the php to do most of the file handling
         - `delete_invites.py`: Using a list of invite ids it deletes them from `invites.json`
-        - `edit_invite.py`: Similar to `generate_invite.php` but doesn't generate ids. Updates the json rather than appends to it.
-        - `generate_invite.py`: Generates a unique 16 character invite id, appending the invite and its data to `invites.json`
+        - `manage_invites.py`: Generates a unique 8 character invite id or edit an existing invite, saving the changes to `invites.json`
         - `load_data_utils.py`: For parsing/loading `config.php` and `secrets.php` to be usable in python
         - `update_guilds.py`: Authenticates using the `bot` access token to get the servers the application has access to and their roles. Saves the results in `guilds.json`
     - `index.php`: Main page containing links to add application to a server, create invite links, or modify them

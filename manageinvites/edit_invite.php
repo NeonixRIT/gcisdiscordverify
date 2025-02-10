@@ -12,6 +12,10 @@ function main() {
     if (!isset($_POST['invite_id'])) {
         die("No invite id provided.");
     }
+
+    if (empty(trim($_POST['invite_id']))) {
+        die("No invite id provided.");
+    }
     
     if (!isset($_POST['server'])) {
         die("No invite server info provided.");
@@ -65,7 +69,7 @@ function main() {
         array_push($args, $role_data['name']);
     }
     $args_string = encode_args_b64($args);
-    $cmd = "{$config['python_path']} {$config['project_root']}/runnable/edit_invite.py";
+    $cmd = "{$config['python_path']} {$config['project_root']}/runnable/manage_invites.py";
     $cmd_and_args = "{$cmd} {$args_string}";
     exec($cmd_and_args);
 }

@@ -48,14 +48,15 @@ function main() {
         }
     }
 
-    $args = [$server_id, $server_name, $safeDescription, $nick_prefix, $nick_suffix];
+    // Blank invite id (first argment) means it will generate a new invite id.
+    $args = [" ", $server_id, $server_name, $safeDescription, $nick_prefix, $nick_suffix];
     foreach ($decoded_roles as $role) {
         array_push($args, $role['id']);
         array_push($args, $role['name']);
     }
 
     $args_string = encode_args_b64($args);
-    $cmd = "{$config['python_path']} {$config['project_root']}/runnable/generate_invite.py";
+    $cmd = "{$config['python_path']} {$config['project_root']}/runnable/manage_invites.py";
     $cmd_and_args = "{$cmd} {$args_string}";
     exec($cmd_and_args, $invite_id);
 
