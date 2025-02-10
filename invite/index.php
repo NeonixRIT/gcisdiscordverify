@@ -1,14 +1,20 @@
 <?php
 $config = require_once '../data/config.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+function main() {
+    global $config;
+    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        die("Invalid request method.");
+    }
+
     if (empty($_GET['id'])) {
         die("No invite `id` provided.");
     }
     $invite_id = $_GET['id'];
     $invites = json_decode(file_get_contents("{$config['project_root']}/data/invites.json"));
     if (!property_exists($invites, $invite_id)) {
-       die("Invalid invite `id` provided.");
+        die("Invalid invite `id` provided.");
     }
 
     $invite_id_base64 = base64_encode($invite_id);
@@ -16,4 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     header('Location: '.$discord_redirect_url, true, 301);
     die();
 }
+
+main();
 ?>

@@ -81,5 +81,6 @@ for guild in guilds_result:
             ]
         }
     )
+
 with open(f'{CONFIG["project_root"]}/data/guilds.json', 'w') as f:
     json.dump(data, f, indent=4)

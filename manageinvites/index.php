@@ -5,8 +5,7 @@ $config = require_once '../data/config.php';
 $invites_file = "{$config['project_root']}/data/invites.json";
 $invites = [];
 if (file_exists($invites_file)) {
-    $json = file_get_contents($invites_file);
-    $invites = json_decode($json, true);
+    $invites = json_decode(file_get_contents($invites_file), true);
 }
 
 // Also load the guilds data for editing purposes

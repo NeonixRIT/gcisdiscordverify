@@ -4,7 +4,7 @@ from random import choice, choices
 from pathlib import Path
 from base64 import b64decode
 
-from load_data_utils import load_config
+from load_data_utils import load_config, unpack_args
 
 CONFIG = load_config()
 invites_path = Path(f'{CONFIG["project_root"]}/data/invites.json')
@@ -16,30 +16,25 @@ invites = None
 with open(invites_path, 'r') as invites_fd:
     invites = load(invites_fd)
 
-server_id: str = argv[1]
-server_name_b64: str = argv[2]
-description_b64: str = argv[3]
-nick_prefix_b64: str = argv[4]
-nick_suffix_b64: str = argv[5]
-roles = argv[6:]
 
-server_name = b64decode(server_name_b64).decode('utf-8')
-description = b64decode(description_b64).decode('utf-8')
-nick_prefix = b64decode(nick_prefix_b64).decode('utf-8')
+if len(argv) != 2:
+    print('{"message": "Failure"}')
+
+args = unpack_args(argv[1])
+server_id = args[0]
+server_name = args[1]
+description = args[2]
+nick_prefix = args[3]
+nick_suffix = args[4]
+roles = args[5:]
+
 if nick_prefix.strip() == '':
     nick_prefix = ''
-nick_suffix = b64decode(nick_suffix_b64).decode('utf-8')
+
 if nick_suffix.strip() == '':
     nick_suffix = ''
 
-
-parsed_roles = []
-for i in range(0, len(roles), 2):
-    role_id: str = roles[i]
-    role_name_b64: str = roles[i + 1]
-    role_name: str = b64decode(role_name_b64).decode('utf-8')
-    parsed_roles.append((role_id, role_name))
-
+parsed_roles = [(roles[i], roles[i + 1]) for i in range(0, len(roles), 2)]
 
 invite_length = 8
 invite_characters = 'abcdefghijklmnopqrstuvwxyz'
@@ -53,6 +48,7 @@ invite_characters += special_characters
 invite_id = (invite_id_first + invite_id_second + ''.join(choices(invite_characters, k=invite_length - 3))) + invite_id_last
 while invite_id in invites:
     invite_id = (invite_id_first + invite_id_second + ''.join(choices(invite_characters, k=invite_length - 3))) + invite_id_last
+
 invites[invite_id] = {
     'server_name': server_name,
     'server_id': server_id,
