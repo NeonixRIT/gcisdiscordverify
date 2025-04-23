@@ -130,7 +130,7 @@ $has_invites = !empty($invites);
             <tr id="invite-<?php echo htmlspecialchars($invite_id); ?>">
               <td><input type="checkbox" class="select_invite" value="<?php echo htmlspecialchars($invite_id); ?>"></td>
               <td><?php echo htmlspecialchars($invite_id); ?></td>
-              <td class="server_name"><?php echo htmlspecialchars($data['server_name'] ?? 'N/A'); ?></td>
+              <td class="server_name"><?php echo htmlspecialchars(str_replace("%%singlequote%%", "'", $data['server_name']) ?? 'N/A'); ?></td>
               <td class="description"><?php echo htmlspecialchars($data['description'] ?? ''); ?></td>
               <td class="nick_prefix"><?php echo htmlspecialchars($data['nick_prefix'] ?? ''); ?></td>
               <td class="nick_suffix"><?php echo htmlspecialchars($data['nick_suffix'] ?? ''); ?></td>
@@ -138,7 +138,7 @@ $has_invites = !empty($invites);
                 <?php 
                   if (isset($data['roles']) && is_array($data['roles'])) {
                       $role_names = array_map(function($role) {
-                          return $role['name'];
+                          return str_replace("%%singlequote%%", "'", $role['name']);
                       }, $data['roles']);
                       echo htmlspecialchars(implode(", ", $role_names));
                   } else {
@@ -193,7 +193,7 @@ $has_invites = !empty($invites);
                 <option value="">-- Select a Server --</option>
                 <?php foreach ($guilds_data as $guild): ?>
                   <option value='<?php echo json_encode(["id" => $guild['id'], "name" => $guild['name']]); ?>'>
-                    <?php echo htmlspecialchars($guild['name']); ?>
+                    <?php echo htmlspecialchars(str_replace("%%singlequote%%", "'", $guild['name'])); ?>
                   </option>
                 <?php endforeach; ?>
               </select>
@@ -276,7 +276,7 @@ $has_invites = !empty($invites);
           
           var label = $('<label class="form-check-label"></label>');
           label.attr('for', 'edit_role_' + role.id);
-          label.text(role.name);
+          label.text(role.name.replace(/%%singlequote%%/g, "'"));
           
           div.append(input).append(label);
           container.append(div);
@@ -417,13 +417,14 @@ $has_invites = !empty($invites);
         $.post('edit_invite.php', form_data, function(response) {
           var invite_id = $('#edit_invite_id').val();
           var new_server_data = JSON.parse($('#edit_server_select').val());
+          new_server_data.name = new_server_data.name.replace(/%%singlequote%%/g, "'");
           var new_description = $('#edit_description').val();
           var new_nick_prefix = $('#edit_nick_prefix').val();
           var new_nick_suffix = $('#edit_nick_suffix').val();
           var role_names = [];
           selected_roles.forEach(function(role_json) {
             var role_obj = JSON.parse(role_json);
-            role_names.push(role_obj.name);
+            role_names.push(role_obj.name.replace(/%%singlequote%%/g, "'"));
           });
           
           var row = $('#invite-' + $.escapeSelector(invite_id));

@@ -109,7 +109,7 @@ $guilds_data = json_decode(file_get_contents("{$config['project_root']}/data/gui
               <option value="">-- Select a Server --</option>
               <?php foreach ($guilds_data as $guild): ?>
                 <option value='<?php echo json_encode(["id" => $guild->id, "name" => $guild->name]); ?>'>
-                  <?php echo htmlspecialchars($guild->name); ?>
+                  <?php echo htmlspecialchars(str_replace("%%singlequote%%", "'", $guild->name)); ?>
                 </option>
               <?php endforeach; ?>
             </select>
@@ -201,7 +201,7 @@ $guilds_data = json_decode(file_get_contents("{$config['project_root']}/data/gui
           var label = document.createElement('label');
           label.className = 'form-check-label';
           label.setAttribute('for', input.id);
-          label.textContent = role.name;
+          label.textContent = role.name.replace(/%%singlequote%%/g, "'");
           
           div.appendChild(input);
           div.appendChild(label);

@@ -66,18 +66,18 @@ for guild in guilds_result:
     guild_name = guild['name']
     guild_roles_endpoint = f'/guilds/{guild_id}/roles'
     guild_roles = send_discord_api_request(bot_token, is_bot, guild_roles_endpoint)['response']
-    bot_role_pos = guild_roles[-1]['position'] # Bot's role is always the last one for /api/v10
+    bot_role = [role for role in guild_roles if role['managed'] and role['tags']['bot_id'] == CONFIG['client_id']][0]
     data.append(
         {
-            'name': guild_name,
+            'name': guild_name.replace("'", "%%singlequote%%"),
             'id': guild_id,
             'roles': [
                 {
-                    'name': role['name'],
+                    'name': role['name'].replace("'", "%%singlequote%%"),
                     'id': role['id']
                 } 
-            for role in sorted(guild_roles[:-1], key=lambda x: x['position'], reverse=True)
-            if role['name'] != "@everyone" and role['position'] <= bot_role_pos
+            for role in sorted(guild_roles, key=lambda x: x['position'], reverse=True)
+            if role['name'] != "@everyone" and role['position'] <= bot_role['position'] and role['id'] != bot_role['id']
             ]
         }
     )
